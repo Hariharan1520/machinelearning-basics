@@ -1,0 +1,22 @@
+import numpy as NP
+from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
+hours_studied = NP.array([1,2,3,4,5]).reshape(-1,1)
+marks_scored=NP.array([60,65,70,75,80])
+model=LinearRegression()
+model.fit(hours_studied,marks_scored)
+LinearRegression()
+new_hours=NP.array([3.5,5.5,8]).reshape(-1,1)
+predicted_scores=model.predict(new_hours)
+print("intercept=",model.intercept_)
+print("slope=",model.coef_[0])
+x_extend=NP.linspace(0,11,100).reshape(-1,1)
+y_extend=model.predict(x_extend)
+plt.scatter(hours_studied,marks_scored,color='red',label='data')
+plt.plot(hours_studied,model.predict(hours_studied),color='blue',label='regression')
+plt.scatter(new_hours,predicted_scores,color='black',label='predictions')
+plt.xlabel('Hours Studied')
+plt.ylabel('Marks')
+plt.title('Predicting Exam Scores Based on Hours Studied')
+plt.legend()
+plt.show()

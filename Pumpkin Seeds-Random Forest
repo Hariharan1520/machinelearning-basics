@@ -1,0 +1,51 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.metrics import accuracy_score, classification_report
+
+# Load the Pumpkin dataset
+file_path = r'C:\Users\Sivadhanya\OneDrive\Desktop\Pumpkin_Seeds_Dataset.xlsx'
+data = pd.read_excel(file_path)
+
+# Separate features (X) and target (y)
+X = data.drop(columns=['Class'])  # Features are all columns except 'Class'
+y = data['Class']  # Target variable
+
+# Encode the categorical target variable
+le = LabelEncoder()
+y = le.fit_transform(y)
+
+# Split the dataset into training (80%) and testing (20%)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Feature Scaling (Random Forest doesn't necessarily need it, but let's standardize for safety)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Random Forest Classifier with GridSearchCV for hyperparameter tuning
+param_grid = {
+    'n_estimators': [100, 200, 300],        # Number of trees
+    'max_depth': [10, 20, None],            # Max depth of trees
+    'min_samples_split': [2, 5, 10],        # Minimum samples to split a node
+    'min_samples_leaf': [1, 2, 4]           # Minimum samples per leaf node
+}
+
+rf = RandomForestClassifier(random_state=42)
+grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=3, scoring='accuracy', verbose=2)
+grid_search.fit(X_train, y_train)
+
+# Best model from grid search
+best_rf = grid_search.best_estimator_
+
+# Make predictions and evaluate the model
+y_pred = best_rf.predict(X_test)
+
+# Calculate accuracy and detailed classification report
+accuracy = accuracy_score(y_test, y_pred)
+classification_rep = classification_report(y_test, y_pred, target_names=le.classes_)
+
+# Print results
+print(f'Best Random Forest Model Accuracy: {accuracy * 100:.2f}%')
+print("Classification Report:\n", classification_rep)
